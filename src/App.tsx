@@ -6,6 +6,7 @@ function App() {
   const [timer, setTimer] = useState<number>(0);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isCountingDown, setIsCountingDown] = useState(false);
+  const [showPrintPreview, setShowPrintPreview] = useState(false);
 
   // ====== WEBCAM Functions ====== //
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -101,6 +102,47 @@ function App() {
       return updated;
     });
   };
+
+  // ====== PRINT PHOTOS Functions ====== //
+  const handleDownloadCollage = async () => {
+    const images = await Promise.all(
+      capturedPhotos.map((src) => loadImage(src))
+    );
+
+    const imgWidth = 300; // size per image
+    const imgHeight = 300;
+    const cols = 2;
+    const rows = Math.ceil(images.length / cols);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = cols * imgWidth;
+    canvas.height = rows * imgHeight;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    images.forEach((img, index) => {
+      const x = (index % cols) * imgWidth;
+      const y = Math.floor(index / cols) * imgHeight;
+      ctx.drawImage(img, x, y, imgWidth, imgHeight);
+    });
+
+    const jpgData = canvas.toDataURL("image/jpeg", 0.95);
+    const link = document.createElement("a");
+    link.href = jpgData;
+    link.download = "photo-collage.jpg";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const loadImage = (src: string): Promise<HTMLImageElement> =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.src = src;
+    });
+  // ====== PRINT PHOTOS Functions ====== //
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -213,11 +255,40 @@ function App() {
               <option value={5}>5</option>
             </select>
           </div>
-          <button className="w-full text-center bg-amber-300 py-2 rounded-2xl cursor-pointer hover:bg-amber-500 transition-all duration-200">
+          <button
+            className="w-full text-center bg-amber-300 py-2 rounded-2xl cursor-pointer hover:bg-amber-500 transition-all duration-200"
+            onClick={() => setShowPrintPreview(true)}
+          >
             Print your photos
           </button>
         </div>
       </div>
+
+      {/* PRINT photos */}
+      {showPrintPreview && (
+        <div className="mt-6">
+          <div
+            id="collage-container"
+            className="grid grid-cols-2 gap-2 w-full max-w-md mx-auto"
+          >
+            {capturedPhotos.map((src, i) => (
+              <img
+                key={i}
+                src={src}
+                alt={`Captured ${i}`}
+                className="w-full object-cover"
+              />
+            ))}
+          </div>
+
+          <button
+            className="mt-4 px-4 py-2 bg-green-600 text-white rounded"
+            onClick={handleDownloadCollage}
+          >
+            Download Photos
+          </button>
+        </div>
+      )}
     </div>
   );
 }
