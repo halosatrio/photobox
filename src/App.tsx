@@ -3,7 +3,8 @@ import { useRef, useState } from "react";
 function App() {
   const [option, setOption] = useState<number>(4);
   const [capturedPhotos, setCapturedPhotos] = useState<string[]>([]);
-  const [timer, setTimer] = useState<number | null>(null);
+  const [timer, setTimer] = useState<number>(3);
+  const [countdown, setCountdown] = useState<number | null>(null);
   const [isCountingDown, setIsCountingDown] = useState(false);
 
   // ====== WEBCAM Functions ====== //
@@ -43,19 +44,19 @@ function App() {
       return;
 
     setIsCountingDown(true);
-    let counter = 3;
-    setTimer(counter);
+    let counter = timer;
+    setCountdown(counter);
 
     const video = videoRef.current;
 
     // capture with timer
     const countdownInterval = setInterval(() => {
       counter--;
-      setTimer(counter);
+      setCountdown(counter);
 
       if (counter === 0) {
         clearInterval(countdownInterval);
-        setTimer(null);
+        setCountdown(null);
         setIsCountingDown(false);
 
         // Set canvas dimensions to match video stream
@@ -111,9 +112,11 @@ function App() {
               autoPlay
               muted
             />
-            {timer !== null && (
+            {countdown !== null && (
               <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black opacity-40 z-10">
-                <span className="text-white text-6xl font-bold">{timer}</span>
+                <span className="text-white text-6xl font-bold">
+                  {countdown}
+                </span>
               </div>
             )}
           </div>
@@ -183,8 +186,9 @@ function App() {
               name="timer"
               id="timer"
               className="w-full bg-white px-8 py-2 mt-3 mb-8 rounded-2xl"
+              value={timer}
+              onChange={(e) => setTimer(Number(e.target.value))}
             >
-              <option value={1}>1</option>
               <option value={3}>3</option>
               <option value={5}>5</option>
             </select>
