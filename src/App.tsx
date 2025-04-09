@@ -48,8 +48,8 @@ function App() {
 
     if (timer === 0) {
       const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      canvas.width = video.videoWidth; // 640
+      canvas.height = video.videoHeight; // 480
 
       // Draw video frame onto canvas
       const ctx = canvas.getContext("2d");
@@ -109,8 +109,8 @@ function App() {
       capturedPhotos.map((src) => loadImage(src))
     );
 
-    const imgWidth = 300; // size per image
-    const imgHeight = 300;
+    const imgWidth = 640;
+    const imgHeight = 480;
     const cols = 2;
     const rows = Math.ceil(images.length / cols);
 
@@ -147,7 +147,7 @@ function App() {
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-4xl text-center my-8">photobox</h1>
-      <div className="bg-zinc-300 flex gap-12">
+      <div className="bg-zinc-300 flex ">
         <div className="bg-red-300 w-full p-8">
           {/* WEBCAM */}
           <div className="flex justify-between">
@@ -164,7 +164,7 @@ function App() {
               Close Webcam
             </button>
           </div>
-          <div className="relative mx-auto bg-slate-400 w-full aspect-square">
+          <div className="relative mx-auto bg-slate-400 w-full aspect-3/2">
             <video
               className="w-full h-full object-cover -scale-x-100"
               ref={videoRef}
@@ -200,7 +200,7 @@ function App() {
               return (
                 <div
                   key={index}
-                  className="relative w-full aspect-square border border-gray-300 bg-gray-100 flex items-center justify-center"
+                  className="relative w-full aspect-3/2 border border-gray-300 bg-gray-100 flex items-center justify-center"
                 >
                   {photo ? (
                     <>
@@ -280,13 +280,14 @@ function App() {
               />
             ))}
           </div>
-
-          <button
-            className="mt-4 px-4 py-2 bg-green-600 text-white rounded"
-            onClick={handleDownloadCollage}
-          >
-            Download Photos
-          </button>
+          <div className="flex justify-center">
+            <button
+              className="mt-4 px-4 py-2 bg-green-600 text-white rounded mx-auto cursor-pointer"
+              onClick={handleDownloadCollage}
+            >
+              Download Photos
+            </button>
+          </div>
         </div>
       )}
     </div>
