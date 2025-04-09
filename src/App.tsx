@@ -1,6 +1,4 @@
 import { useRef, useState } from "react";
-// import Webcam from "react-webcam";
-// import { Webcam } from "./Webcam";
 
 function App() {
   const [option, setOption] = useState<number>(4);
@@ -57,8 +55,15 @@ function App() {
       setCapturedPhotos((prev) => [...prev, imageDataUrl].slice(0, 4));
     }
   };
-
   // ====== WEBCAM Functions ====== //
+
+  const handleDeletePhoto = (index: number) => {
+    setCapturedPhotos((prev) => {
+      const updated = [...prev];
+      updated.splice(index, 1);
+      return updated;
+    });
+  };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -103,19 +108,34 @@ function App() {
         <div className="bg-green-300 p-4 w-full">
           <h3>photo preview</h3>
           <div className="grid grid-cols-4 gap-4 mb-8 mt-3">
-            {[0, 1, 2, 3].map((index) => (
-              <div key={index} className="w-full aspect-square bg-slate-100">
-                {capturedPhotos[index] ? (
-                  <img
-                    src={capturedPhotos[index]}
-                    alt={`Captured ${index + 1}`}
-                    className="w-full h-full object-cover -scale-x-100"
-                  />
-                ) : (
-                  <span className="text-sm text-gray-500">Empty</span>
-                )}
-              </div>
-            ))}
+            {[0, 1, 2, 3].map((index) => {
+              const photo = capturedPhotos[index];
+
+              return (
+                <div
+                  key={index}
+                  className="relative w-full aspect-square border border-gray-300 bg-gray-100 flex items-center justify-center"
+                >
+                  {photo ? (
+                    <>
+                      <img
+                        src={photo}
+                        alt={`Captured ${index + 1}`}
+                        className="w-full h-full object-cover -scale-x-100"
+                      />
+                      <button
+                        onClick={() => handleDeletePhoto(index)}
+                        className="absolute top-1 right-1 bg-black bg-opacity-50 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center cursor-pointer"
+                      >
+                        ×
+                      </button>
+                    </>
+                  ) : (
+                    <span className="text-sm text-gray-500">Empty</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
           <h3>options</h3>
           <div className="flex justify-between px-2 bg-amber-200 mt-3 mb-8 py-2 rounded-2xl">
