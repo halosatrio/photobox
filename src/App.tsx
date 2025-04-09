@@ -3,6 +3,8 @@ import { useRef, useState } from "react";
 function App() {
   const [option, setOption] = useState<number>(4);
   const [capturedPhotos, setCapturedPhotos] = useState<string[]>([]);
+  const [timer, setTimer] = useState<number | null>(null);
+  const [isCountingDown, setIsCountingDown] = useState(false);
 
   // ====== WEBCAM Functions ====== //
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -37,23 +39,40 @@ function App() {
   };
 
   const captureImage = () => {
-    if (!videoRef.current || capturedPhotos.length >= 4) return;
+    if (!videoRef.current || capturedPhotos.length >= 4 || isCountingDown)
+      return;
+
+    setIsCountingDown(true);
+    let counter = 3;
+    setTimer(counter);
 
     const video = videoRef.current;
-    const canvas = document.createElement("canvas");
-    // Set canvas dimensions to match video stream
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
 
-    // Draw video frame onto canvas
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageDataUrl = canvas.toDataURL("image/png");
+    // capture with timer
+    const countdownInterval = setInterval(() => {
+      counter--;
+      setTimer(counter);
 
-      // Set the captured image
-      setCapturedPhotos((prev) => [...prev, imageDataUrl].slice(0, 4));
-    }
+      if (counter === 0) {
+        clearInterval(countdownInterval);
+        setTimer(null);
+        setIsCountingDown(false);
+
+        // Set canvas dimensions to match video stream
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        // Draw video frame onto canvas
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          const imageDataUrl = canvas.toDataURL("image/png");
+          // Set the captured image
+          setCapturedPhotos((prev) => [...prev, imageDataUrl].slice(0, 4));
+        }
+      }
+    }, 1000);
   };
   // ====== WEBCAM Functions ====== //
 
@@ -85,13 +104,18 @@ function App() {
               Close Webcam
             </button>
           </div>
-          <div className="mx-auto bg-slate-400 w-full aspect-square">
+          <div className="relative mx-auto bg-slate-400 w-full aspect-square">
             <video
               className="w-full h-full object-cover -scale-x-100"
               ref={videoRef}
               autoPlay
               muted
             />
+            {timer !== null && (
+              <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black opacity-40 z-10">
+                <span className="text-white text-6xl font-bold">{timer}</span>
+              </div>
+            )}
           </div>
           <div className="flex justify-center">
             <button
