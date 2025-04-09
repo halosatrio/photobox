@@ -32,7 +32,6 @@ function App() {
       });
       setMediaStream(null);
     }
-
     // reset the video element
     if (videoRef.current) {
       videoRef.current.srcObject = null;
@@ -44,37 +43,19 @@ function App() {
 
     const video = videoRef.current;
     const canvas = document.createElement("canvas");
+    // Set canvas dimensions to match video stream
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
+    // Draw video frame onto canvas
     const ctx = canvas.getContext("2d");
     if (ctx) {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       const imageDataUrl = canvas.toDataURL("image/png");
 
+      // Set the captured image
       setCapturedPhotos((prev) => [...prev, imageDataUrl].slice(0, 4));
     }
-
-    // const context = canvas.getContext("2d");
-    // Set canvas dimensions to match video stream
-    // if (context && video.videoWidth && video.videoHeight) {
-    //   canvas.width = video.videoWidth;
-    //   canvas.height = video.videoHeight;
-
-    //   // Draw video frame onto canvas
-    //   context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    //   // Get image data URL from canvas
-    //   const imageDataUrl = canvas.toDataURL("image/jpeg");
-
-    //   // Set the captured image
-    //   setCapturedImage(imageDataUrl);
-
-    //   // Stop the webcam
-    //   stopWebcam();
-
-    //   // You can do something with the captured image here, like save it to state or send it to a server
-    // }
   };
 
   // ====== WEBCAM Functions ====== //
@@ -174,28 +155,3 @@ function App() {
 }
 
 export default App;
-
-// const videoConstraints = {
-//   width: 1280,
-//   height: 720,
-//   facingMode: "user",
-// };
-// const WebcamCapture = () => (
-//   <Webcam
-//     audio={false}
-//     height={720}
-//     screenshotFormat="image/jpeg"
-//     width={1280}
-//     videoConstraints={videoConstraints}
-//   >
-//     {({ getScreenshot }) => (
-//       <button
-//         onClick={() => {
-//           const imageSrc = getScreenshot();
-//         }}
-//       >
-//         Capture photo
-//       </button>
-//     )}
-//   </Webcam>
-// );
