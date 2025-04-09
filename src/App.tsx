@@ -182,17 +182,19 @@ function App() {
             })}
           </div>
           <h3>options</h3>
-          <div className="flex justify-between px-2 bg-amber-200 mt-3 mb-8 py-2 rounded-2xl">
+          <div className="px-2 flex justify-between items-center bg-amber-200 mt-3 mb-8 py-2 rounded-2xl">
             <button
-              className="cursor-pointer hover:bg-amber-400 px-2 rounded-[10px] transition-all duration-100"
+              className="px-2 cursor-pointer hover:bg-amber-400 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 rounded-[10px] transition-all duration-100"
               onClick={() => setOption((prev) => prev - 1)}
+              disabled={option === 4}
             >
               -
             </button>
             <p>{option}</p>
             <button
-              className="cursor-pointer hover:bg-amber-400 px-2 rounded-[10px] transition-all duration-100"
+              className="px-2 cursor-pointer hover:bg-amber-400 disabled:cursor-not-allowed  disabled:bg-slate-300 disabled:text-slate-500 rounded-[10px] transition-all duration-100"
               onClick={() => setOption((prev) => prev + 1)}
+              disabled={option === 8}
             >
               +
             </button>
