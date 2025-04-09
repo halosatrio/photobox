@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 function App() {
   const [option, setOption] = useState<number>(4);
   const [capturedPhotos, setCapturedPhotos] = useState<string[]>([]);
-  const [timer, setTimer] = useState<number>(3);
+  const [timer, setTimer] = useState<number>(0);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [isCountingDown, setIsCountingDown] = useState(false);
 
@@ -40,40 +40,57 @@ function App() {
   };
 
   const captureImage = () => {
-    if (!videoRef.current || capturedPhotos.length >= 4 || isCountingDown)
+    if (!videoRef.current || capturedPhotos.length >= option || isCountingDown)
       return;
-
-    setIsCountingDown(true);
-    let counter = timer;
-    setCountdown(counter);
 
     const video = videoRef.current;
 
-    // capture with timer
-    const countdownInterval = setInterval(() => {
-      counter--;
+    if (timer === 0) {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      // Draw video frame onto canvas
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageDataUrl = canvas.toDataURL("image/png");
+        // Set the captured image
+        setCapturedPhotos((prev) => [...prev, imageDataUrl].slice(0, option));
+      }
+    } else {
+      setIsCountingDown(true);
+      let counter = timer;
       setCountdown(counter);
 
-      if (counter === 0) {
-        clearInterval(countdownInterval);
-        setCountdown(null);
-        setIsCountingDown(false);
+      // capture with timer
+      const countdownInterval = setInterval(() => {
+        counter--;
+        setCountdown(counter);
 
-        // Set canvas dimensions to match video stream
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        if (counter === 0) {
+          clearInterval(countdownInterval);
+          setCountdown(null);
+          setIsCountingDown(false);
 
-        // Draw video frame onto canvas
-        const ctx = canvas.getContext("2d");
-        if (ctx) {
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-          const imageDataUrl = canvas.toDataURL("image/png");
-          // Set the captured image
-          setCapturedPhotos((prev) => [...prev, imageDataUrl].slice(0, 4));
+          // Set canvas dimensions to match video stream
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+
+          // Draw video frame onto canvas
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageDataUrl = canvas.toDataURL("image/png");
+            // Set the captured image
+            setCapturedPhotos((prev) =>
+              [...prev, imageDataUrl].slice(0, option)
+            );
+          }
         }
-      }
-    }, 1000);
+      }, 1000);
+    }
   };
   // ====== WEBCAM Functions ====== //
 
@@ -124,7 +141,7 @@ function App() {
             <button
               className="px-4 py-2 bg-blue-300 cursor-pointer disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
               onClick={captureImage}
-              disabled={!mediaStream || capturedPhotos.length >= 4}
+              disabled={!mediaStream || capturedPhotos.length >= option}
             >
               Capture
             </button>
@@ -135,7 +152,7 @@ function App() {
         <div className="bg-green-300 p-4 w-full">
           <h3>photo preview</h3>
           <div className="grid grid-cols-4 gap-4 mb-8 mt-3">
-            {[0, 1, 2, 3].map((index) => {
+            {Array.from({ length: option }).map((_, index) => {
               const photo = capturedPhotos[index];
 
               return (
@@ -189,6 +206,7 @@ function App() {
               value={timer}
               onChange={(e) => setTimer(Number(e.target.value))}
             >
+              <option value={0}>0</option>
               <option value={3}>3</option>
               <option value={5}>5</option>
             </select>
