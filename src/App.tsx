@@ -124,7 +124,14 @@ function App() {
     images.forEach((img, index) => {
       const x = (index % cols) * imgWidth;
       const y = Math.floor(index / cols) * imgHeight;
-      ctx.drawImage(img, x, y, imgWidth, imgHeight);
+      ctx.save();
+      // Move the origin to the right edge of the image's drawing area
+      ctx.translate(x + imgWidth, y);
+      // Flip horizontally
+      ctx.scale(-1, 1);
+      // Draw the image with flipped context, at the new origin (0,0)
+      ctx.drawImage(img, 0, 0, imgWidth, imgHeight);
+      ctx.restore();
     });
 
     const jpgData = canvas.toDataURL("image/jpeg", 0.95);
@@ -276,7 +283,7 @@ function App() {
                 key={i}
                 src={src}
                 alt={`Captured ${i}`}
-                className="w-full object-cover"
+                className="w-full object-cover -scale-x-100"
               />
             ))}
           </div>
